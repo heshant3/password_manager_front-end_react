@@ -1,0 +1,52 @@
+.container8 {
+  background-color: #fff;
+  flex-direction: column;
+  align-items: stretch;
+  width: 12em;
+  padding: 6.3em 1.7em 50.8em;
+  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.6;
+  display: flex;
+  box-shadow: 0 0 2px #171a1f1f;
+}
+.div,
+.div2 {
+  color: #5a626f;
+  align-items: stretch;
+  gap: 0.5625em;
+  display: flex;
+  text-decoration: none;
+}
+.img,
+.img2 {
+  aspect-ratio: 1;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.img {
+  width: 1.75em;
+}
+.img2 {
+  width: 1.5em;
+}
+.allPasswords,
+.profile {
+  transform: rotate(1403340000000000000deg);
+}
+.div2 {
+  color: #666d79;
+  white-space: nowrap;
+  align-self: start;
+  margin-top: 2.0625em;
+}
+.dashboard {
+  display: flex;
+}
+.content {
+  flex-grow: 1;
+  background: #f8f9fa;
+}
