@@ -1,0 +1,151 @@
+.container {
+  max-height: 100vh;
+  font-family: Inter, sans-serif;
+  display: flex;
+}
+
+@media (max-width: 991px) {
+  .container {
+    flex-direction: column;
+  }
+}
+
+.leftPanel {
+  color: #fff;
+  background-color: #2563eb;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+@media (max-width: 991px) {
+  .leftPanel {
+    padding: 3.75em 1.25em;
+  }
+}
+
+.title {
+  text-align: center;
+  max-width: 25em;
+  margin-bottom: 1em;
+  font-size: 2.25rem;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .title {
+    font-size: 1.75rem;
+  }
+}
+
+.subtitle {
+  text-align: center;
+  opacity: 0.9;
+  font-size: 1rem;
+}
+
+@media (max-width: 640px) {
+  .subtitle {
+    font-size: 0.875rem;
+  }
+}
+
+.formPanel {
+  background-color: #fff;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+@media (max-width: 991px) {
+  .formPanel {
+    padding: 2.5em 1.25em;
+  }
+}
+
+@media (max-width: 640px) {
+  .formPanel {
+    padding: 1.875em 1em;
+  }
+}
+
+.formTitle {
+  color: #111827;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .formTitle {
+    margin-bottom: 1.5em;
+    font-size: 1.25rem;
+  }
+}
+
+.signupForm {
+  width: 100%;
+  max-width: 25em;
+}
+
+.formGroup {
+  margin-bottom: 1.5em;
+}
+
+@media (max-width: 640px) {
+  .formGroup {
+    margin-bottom: 1.25em;
+  }
+}
+
+.formLabel {
+  color: #374151;
+  margin-bottom: 0.5em;
+  font-size: 0.875rem;
+  display: block;
+}
+
+.formInput,
+.formInputdateInput {
+  color: #111827;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375em;
+  width: 100%;
+  height: 2.5em;
+  padding: 0 0.75em;
+  font-size: 0.875rem;
+}
+
+.formInputdateInput {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'%3E%3C/path%3E%3C/svg%3E");
+  background-position: right 0.75em center;
+  background-repeat: no-repeat;
+  background-size: 1.25em;
+  padding-right: 2.5em;
+}
+
+.signupButton {
+  color: #fff;
+  cursor: pointer;
+  background-color: #2563eb;
+  border: none;
+  border-radius: 0.375em;
+  width: 100%;
+  height: 2.5em;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.loginLink {
+  text-align: center;
+  color: #6b7280;
+  cursor: pointer;
+  margin-top: 1em;
+  font-size: 0.875rem;
+}
