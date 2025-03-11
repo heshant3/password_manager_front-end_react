@@ -19,6 +19,8 @@
   gap: 0.5625em;
   display: flex;
   padding: 1em;
+  width: 12em;
+  cursor: pointer;
 }
 
 .div2:hover,

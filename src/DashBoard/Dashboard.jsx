@@ -1,6 +1,6 @@
 import * as React from "react";
 import styles from "./Dashboard.module.css";
-import PasswordCard from "../PasswordManager/PasswordManager";
+import PasswordGrid from "../PasswordManager/PasswordManager";
 import Profile from "../ProfilePage/Profile";
 import { IoKeySharp } from "react-icons/io5";
 import { TbUserFilled } from "react-icons/tb";
@@ -8,10 +8,23 @@ import Header from "../HeaderNav/Header";
 
 function Container8() {
   const [activeTab, setActiveTab] = React.useState("passwords");
+  const [passwordEntries, setPasswordEntries] = React.useState([]);
+
+  const handleUpdate = (_id, updatedEntry) => {
+    const updatedEntries = passwordEntries.map((entry) =>
+      entry._id === _id ? { ...entry, ...updatedEntry } : entry
+    );
+    setPasswordEntries(updatedEntries);
+  };
+
+  const handleDelete = (_id) => {
+    const updatedEntries = passwordEntries.filter((entry) => entry._id !== _id);
+    setPasswordEntries(updatedEntries);
+  };
 
   return (
     <div>
-      <Header showSearch={activeTab === "passwords"} />
+      <Header />
       <div className={styles.dashboard}>
         <nav className={styles.container8}>
           <button
@@ -34,7 +47,13 @@ function Container8() {
           </button>
         </nav>
         <div className={styles.content}>
-          {activeTab === "passwords" && <PasswordCard />}
+          {activeTab === "passwords" && (
+            <PasswordGrid
+              passwordEntries={passwordEntries}
+              onSave={handleUpdate}
+              onDelete={handleDelete}
+            />
+          )}
           {activeTab === "profile" && <Profile />}
         </div>
       </div>

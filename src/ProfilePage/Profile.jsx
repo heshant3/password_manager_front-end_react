@@ -1,44 +1,80 @@
 "use client";
-import React, { useState } from "react";
-import { FaLaptop, FaMobileAlt, FaTabletAlt, FaUser } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaLaptop, FaUser } from "react-icons/fa";
 import styles from "./Profile.module.css";
+import { Toaster, toast } from "sonner";
 
 const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [personalInfo, setPersonalInfo] = useState([
-    { label: "Full Name", value: "John Doe" },
-    { label: "Email", value: "john.doe@example.com" },
-    { label: "Date of Birth", value: "1990-01-01" },
-    { label: "Address", value: "123 Main St, City, Country" },
-  ]);
+  const [personalInfo, setPersonalInfo] = useState([]);
+  const [profileName, setProfileName] = useState("John Doe");
+  const [profileEmail, setProfileEmail] = useState("john.doe@example.com");
+  const [devices, setDevices] = useState([]);
 
-  const devices = [
-    {
-      icon: <FaLaptop size={24} color="#666" />,
-      name: "MacBook Pro",
-      location: "New York, USA",
-      status: "Active now",
-      isActive: true,
-    },
-    {
-      icon: <FaMobileAlt size={24} color="#666" />,
-      name: "iPhone 13",
-      location: "New York, USA",
-      status: "2 hours ago",
-      isActive: false,
-    },
-    {
-      icon: <FaTabletAlt size={24} color="#666" />,
-      name: "iPad Pro",
-      location: "New York, USA",
-      status: "1 day ago",
-      isActive: false,
-    },
-  ];
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      fetch(`http://localhost:5000/api/auth/user/${userId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          setPersonalInfo([
+            { label: "Full Name", value: data.fullName },
+            { label: "Email", value: data.email },
+            { label: "Date of Birth", value: data.dateOfBirth },
+            { label: "Address", value: data.address },
+          ]);
+          setProfileName(data.fullName);
+          setProfileEmail(data.email);
+        });
+
+      fetch(`http://localhost:5000/api/auth/user/${userId}/active-devices`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (Array.isArray(data.activeDevices)) {
+            setDevices(
+              data.activeDevices.map((device) => ({
+                icon: <FaLaptop size={24} color="#666" />, // Assuming all devices use the same icon
+                name: device.deviceName,
+                location: device.ipAddress,
+                status: new Date(device.loginTimestamp).toLocaleString(),
+                id: device._id, // Ensure the _id is included
+              }))
+            );
+          } else {
+            toast.success("Error: Expected an array of devices");
+          }
+        });
+    }
+  }, []);
 
   const handleEdit = () => setIsEditing(true);
 
-  const handleSave = () => setIsEditing(false);
+  const handleSave = () => {
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      const updatedData = {
+        fullName: personalInfo.find((info) => info.label === "Full Name").value,
+        email: personalInfo.find((info) => info.label === "Email").value,
+        dateOfBirth: personalInfo.find((info) => info.label === "Date of Birth")
+          .value,
+        address: personalInfo.find((info) => info.label === "Address").value,
+      };
+
+      fetch(`http://localhost:5000/api/auth/user/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          toast.success("User data updated");
+          setIsEditing(false);
+        })
+        .catch((error) => toast.success("Error updating user data:", error));
+    }
+  };
 
   const handleCancel = () => setIsEditing(false);
 
@@ -48,8 +84,24 @@ const Profile = () => {
     setPersonalInfo(newPersonalInfo);
   };
 
-  const handleSignOut = (deviceName) =>
-    console.log(`Sign out from ${deviceName}`);
+  const handleSignOut = (deviceId) => {
+    const userId = localStorage.getItem("userId");
+    fetch(
+      `http://localhost:5000/api/auth/user/${userId}/active-devices/${deviceId}`,
+      {
+        method: "DELETE",
+      }
+    )
+      .then((response) => {
+        if (response.ok) {
+          setDevices(devices.filter((device) => device.id !== deviceId));
+          toast.success("Signed out from device");
+        } else {
+          throw new Error("Failed to sign out from device");
+        }
+      })
+      .catch((error) => toast.error("Error signing out from device:", error));
+  };
 
   return (
     <>
@@ -62,8 +114,8 @@ const Profile = () => {
           <div className={styles.profileAvatar}>
             <FaUser size={32} color="#4a77e5" />
           </div>
-          <h1 className={styles.profileName}>John Doe</h1>
-          <p className={styles.profileEmail}>john.doe@example.com</p>
+          <h1 className={styles.profileName}>{profileName}</h1>
+          <p className={styles.profileEmail}>{profileEmail}</p>
         </header>
 
         <section className={styles.infoSection}>
@@ -90,7 +142,7 @@ const Profile = () => {
                 <label className={styles.infoLabel}>{info.label}</label>
                 {isEditing ? (
                   <input
-                    type="text"
+                    type={info.label === "Date of Birth" ? "date" : "text"}
                     value={info.value}
                     onChange={(event) => handleInputChange(index, event)}
                     className={styles.infoInput}
@@ -125,7 +177,7 @@ const Profile = () => {
                   </p>
                   <button
                     className={styles.signOutButton}
-                    onClick={() => handleSignOut(device.name)}
+                    onClick={() => handleSignOut(device.id)}
                   >
                     Sign Out
                   </button>
@@ -134,6 +186,7 @@ const Profile = () => {
             ))}
           </div>
         </section>
+        <Toaster position="bottom-right" visibleToasts={1} />
       </main>
     </>
   );

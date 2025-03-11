@@ -1,19 +1,19 @@
+"use client";
 import React, { useState, useEffect } from "react";
-import { TbEdit, TbEditOff } from "react-icons/tb";
+import { TbEdit, TbEditOff } from "react-icons/tb"; // Import icons from React Icons library
 import styles from "./PasswordManager.module.css";
 import { MdOutlineDelete } from "react-icons/md";
-import { VscSaveAs } from "react-icons/vsc";
-import axios from "axios";
-import { Toaster, toast } from "sonner";
+import { VscSaveAs } from "react-icons/vsc"; // Import save icon
+import axios from "axios"; // Import axios for API calls
 
+// Password Card Component
 function PasswordCard({
   _id,
   accountType,
   email,
   password,
   lastModified,
-  onSave,
-  onDelete,
+  onUpdate,
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedAccountType, setEditedAccountType] = useState(accountType);
@@ -22,32 +22,23 @@ function PasswordCard({
 
   const handleSave = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/account/updateById/${_id}`, {
-        accountType: editedAccountType,
-        email: editedEmail,
-        password: editedPassword,
-        lastModified: "just now",
-      });
-      onSave(_id, {
-        accountType: editedAccountType,
-        email: editedEmail,
-        password: editedPassword,
-        lastModified: "just now",
-      });
-      setIsEditing(false);
-      toast.success("Data Updated Successfully");
+      const response = await axios.put(
+        `http://localhost:5000/api/account/updateById/${_id}`,
+        {
+          accountType: editedAccountType,
+          email: editedEmail,
+          password: editedPassword,
+        }
+      );
+      if (response.status === 200) {
+        onUpdate(_id, {
+          ...response.data,
+          lastModified: new Date().toISOString(),
+        });
+        setIsEditing(false);
+      }
     } catch (error) {
-      toast.success("Error updating entry:", error);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      await axios.delete(`http://localhost:5000/api/account/delete/${_id}`);
-      onDelete(_id);
-      toast.success("Data Deleted Successfully");
-    } catch (error) {
-      toast.success("Error deleting entry:", error);
+      console.error("Error updating entry:", error);
     }
   };
 
@@ -56,21 +47,18 @@ function PasswordCard({
       <div className={styles.cardContent}>
         {isEditing ? (
           <>
-            <h3 className={styles.CaptionInputText}>Account Type</h3>
             <input
               type="text"
               value={editedAccountType}
               onChange={(e) => setEditedAccountType(e.target.value)}
               className={styles.input}
             />
-            <h3 className={styles.CaptionInputText}>Email</h3>
             <input
               type="email"
               value={editedEmail}
               onChange={(e) => setEditedEmail(e.target.value)}
               className={styles.input}
             />
-            <h3 className={styles.CaptionInputText}>Password</h3>
             <input
               type="password"
               value={editedPassword}
@@ -80,11 +68,8 @@ function PasswordCard({
           </>
         ) : (
           <>
-            <h3 className={styles.CaptionText}>Account Type</h3>
             <h2 className={styles.accountType}>{accountType}</h2>
-            <h3 className={styles.CaptionText}>Email</h3>
             <p className={styles.email}>{email}</p>
-            <h3 className={styles.CaptionText}>Password</h3>
             <p className={styles.password}>{password}</p>
             <p className={styles.lastModified}>Last modified: {lastModified}</p>
           </>
@@ -103,7 +88,7 @@ function PasswordCard({
         </button>
         <button
           className={styles.actionButton}
-          onClick={isEditing ? handleSave : handleDelete}
+          onClick={isEditing ? handleSave : null}
         >
           {isEditing ? (
             <VscSaveAs size={17} className={styles.viewIcon} />
@@ -116,28 +101,25 @@ function PasswordCard({
   );
 }
 
-function PasswordGrid({ passwordEntries, onSave, onDelete }) {
+// Password Grid Component
+function PasswordGrid({ passwordEntries, onUpdate }) {
   return (
     <div className={styles.gridContainer}>
-      {passwordEntries.length === 0 ? (
-        <p className={styles.noDataText}>No data available</p>
-      ) : (
-        <div className={styles.grid}>
-          {passwordEntries.map((entry) => (
-            <div key={entry._id} className={styles.column}>
-              <PasswordCard {...entry} onSave={onSave} onDelete={onDelete} />
-            </div>
-          ))}
-        </div>
-      )}
+      <div className={styles.grid}>
+        {passwordEntries.map((entry) => (
+          <div key={entry._id} className={styles.column}>
+            <PasswordCard {...entry} onUpdate={onUpdate} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
+// Password Header Component
 function PasswordHeader({ onAddNew }) {
   return (
     <header className={styles.header}>
-      <Toaster position="bottom-right" visibleToasts={1} />
       <h1 className={styles.title}>My Passwords</h1>
       <button className={styles.addButton} onClick={onAddNew}>
         + Add New
@@ -146,17 +128,13 @@ function PasswordHeader({ onAddNew }) {
   );
 }
 
+// Modal Component
 function Modal({ isOpen, onClose, onSave }) {
   const [accountType, setAccountType] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleClose = () => {
-    setAccountType("");
-    setEmail("");
-    setPassword("");
-    onClose();
-  };
+  if (!isOpen) return null;
 
   const handleSave = () => {
     onSave({ accountType, email, password });
@@ -164,8 +142,6 @@ function Modal({ isOpen, onClose, onSave }) {
     setEmail("");
     setPassword("");
   };
-
-  if (!isOpen) return null;
 
   return (
     <div className={styles.modalOverlay}>
@@ -176,24 +152,24 @@ function Modal({ isOpen, onClose, onSave }) {
           placeholder="Account Type"
           value={accountType}
           onChange={(e) => setAccountType(e.target.value)}
-          className={styles.NewInput}
+          className={styles.input}
         />
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className={styles.NewInput}
+          className={styles.input}
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className={styles.NewInput}
+          className={styles.input}
         />
         <div className={styles.modalActions}>
-          <button onClick={handleClose} className={styles.cancelButton}>
+          <button onClick={onClose} className={styles.cancelButton}>
             Cancel
           </button>
           <button onClick={handleSave} className={styles.saveButton}>
@@ -205,27 +181,27 @@ function Modal({ isOpen, onClose, onSave }) {
   );
 }
 
+// Main Dashboard Component
 function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [passwordEntries, setPasswordEntries] = useState([]);
 
-  const fetchData = async () => {
-    const userId = localStorage.getItem("userId");
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/api/account/data/${userId}`
-      );
-      if (response.status === 404) {
-        setPasswordEntries([]);
-        toast.error("No data found");
-      } else {
-        setPasswordEntries(response.data);
-      }
-    } catch (error) {}
-  };
-
   useEffect(() => {
-    fetchData();
+    const fetchPasswordEntries = async () => {
+      const userId = localStorage.getItem("userId");
+      if (userId) {
+        try {
+          const response = await axios.get(
+            `http://localhost:5000/api/account/data/${userId}`
+          );
+          setPasswordEntries(response.data);
+        } catch (error) {
+          console.error("Error fetching password entries:", error);
+        }
+      }
+    };
+
+    fetchPasswordEntries();
   }, []);
 
   const handleAddNew = () => {
@@ -238,33 +214,29 @@ function Dashboard() {
 
   const handleSave = async (newEntry) => {
     const userId = localStorage.getItem("userId");
-
-    try {
-      await axios.post("http://localhost:5000/api/account/create", {
-        accountType: newEntry.accountType,
-        email: newEntry.email,
-        password: newEntry.password,
-        userId: userId,
-      });
-      toast.success("Event has been created");
-      fetchData();
-    } catch (error) {
-      alert.error("Error saving new entry:", error);
+    if (userId) {
+      try {
+        const response = await axios.post(
+          "http://localhost:5000/api/account/create",
+          {
+            ...newEntry,
+            userId,
+          }
+        );
+        if (response.status === 201) {
+          setPasswordEntries((prevEntries) => [...prevEntries, response.data]);
+        }
+      } catch (error) {
+        console.error("Error saving new entry:", error);
+      }
     }
-
     setIsModalOpen(false);
   };
 
-  const handleUpdate = (_id, updatedEntry) => {
-    const updatedEntries = passwordEntries.map((entry) =>
-      entry._id === _id ? { ...entry, ...updatedEntry } : entry
+  const handleUpdate = (id, updatedEntry) => {
+    setPasswordEntries(
+      passwordEntries.map((entry) => (entry._id === id ? updatedEntry : entry))
     );
-    setPasswordEntries(updatedEntries);
-  };
-
-  const handleDelete = (_id) => {
-    const updatedEntries = passwordEntries.filter((entry) => entry._id !== _id);
-    setPasswordEntries(updatedEntries);
   };
 
   return (
@@ -273,8 +245,7 @@ function Dashboard() {
         <PasswordHeader onAddNew={handleAddNew} />
         <PasswordGrid
           passwordEntries={passwordEntries}
-          onSave={handleUpdate}
-          onDelete={handleDelete}
+          onUpdate={handleUpdate}
         />
       </div>
       <Modal

@@ -4,7 +4,7 @@ import { FaUserCircle } from "react-icons/fa";
 import { CiSearch } from "react-icons/ci";
 import styles from "./Header.module.css";
 
-function Header({ showSearch }) {
+function Header() {
   return (
     <header className={styles.header}>
       <img
@@ -12,19 +12,17 @@ function Header({ showSearch }) {
         alt="SecureVault Logo"
         className={styles.logo}
       />
-      {showSearch && (
-        <div className={styles.searchContainer}>
-          <div className={styles.searchIconWrapper}>
-            <CiSearch className={styles.searchIcon} />
-          </div>
-          <input
-            type="text"
-            placeholder="Search passwords."
-            className={styles.searchInput}
-            aria-label="Search passwords"
-          />
+      <div className={styles.searchContainer}>
+        <div className={styles.searchIconWrapper}>
+          <CiSearch className={styles.searchIcon} />
         </div>
-      )}
+        <input
+          type="text"
+          placeholder="Search passwords."
+          className={styles.searchInput}
+          aria-label="Search passwords"
+        />
+      </div>
       <FaUserCircle className={styles.profileImage} />
     </header>
   );

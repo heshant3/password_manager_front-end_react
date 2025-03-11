@@ -1,13 +1,29 @@
 "use client";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { login } from "../../Api/Api";
 import styles from "./Login.module.css";
 
 const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      const response = await login({ email, password });
+      if (response.status === 200) {
+        const { userId, token } = response.data;
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("token", token);
+        navigate("/");
+        console.log("userId", userId);
+      }
+    } catch (error) {
+      alert("Login failed : Please Enter Correct Credential");
+    }
   };
 
   return (
@@ -38,6 +54,8 @@ const LoginPage = () => {
                       type="email"
                       className={styles.input}
                       aria-label="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                     />
                   </div>
                 </div>
@@ -48,6 +66,8 @@ const LoginPage = () => {
                       type="password"
                       className={styles.input}
                       aria-label="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
                 </div>
