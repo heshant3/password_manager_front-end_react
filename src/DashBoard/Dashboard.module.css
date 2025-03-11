@@ -1,24 +1,39 @@
+.wrapper {
+  width: 100vw;
+}
 .container8 {
   background-color: #fff;
-  flex-direction: column;
-  align-items: stretch;
-  width: 12em;
-  padding: 6.3em 1.7em 50.8em;
+  padding: 6.3em 1.7em 0;
   font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
   font-size: 0.9375rem;
   font-weight: 400;
-  line-height: 1.6;
-  display: flex;
+  min-height: 77vh;
   box-shadow: 0 0 2px #171a1f1f;
 }
 .div,
 .div2 {
+  background: none;
+  border: none;
   color: #5a626f;
-  align-items: stretch;
+  align-items: center;
   gap: 0.5625em;
   display: flex;
-  text-decoration: none;
+  padding: 1em;
 }
+
+.div2:hover,
+.div:hover {
+  background-color: #e1eaff;
+  padding: 1em;
+  border-radius: 0.5em;
+}
+
+.active {
+  background-color: #e1eaff;
+  padding: 1em;
+  border-radius: 0.5em;
+}
+
 .img,
 .img2 {
   aspect-ratio: 1;
@@ -32,6 +47,11 @@
 }
 .img2 {
   width: 1.5em;
+}
+
+.icon {
+  width: 1.75em;
+  height: 1.75em;
 }
 .allPasswords,
 .profile {
