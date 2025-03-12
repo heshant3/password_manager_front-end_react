@@ -1,20 +1,19 @@
 import React, { useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import axios from "axios"; // Import axios for API calls
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const token = localStorage.getItem("token");
+    const checkTokenValidity = async () => {
       if (token) {
         try {
-          const decodedToken = jwtDecode(token);
-          const currentTime = Date.now() / 1000;
-
-          if (decodedToken.exp < currentTime) {
+          const response = await axios.get(
+            `http://localhost:5000/api/auth/check-token/${token}`
+          );
+          if (!response.data) {
             localStorage.clear();
             navigate("/login");
           }
@@ -23,10 +22,14 @@ const ProtectedRoute = ({ children }) => {
           navigate("/login");
         }
       }
+    };
+
+    const interval = setInterval(() => {
+      checkTokenValidity();
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [navigate]);
+  }, [navigate, token]);
 
   if (!token) {
     return <Navigate to="/login" />;

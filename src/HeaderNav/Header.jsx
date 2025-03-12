@@ -1,10 +1,36 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
-import { CiSearch } from "react-icons/ci";
 import styles from "./Header.module.css";
 
-function Header() {
+function Header({ showSearch, onSearch }) {
+  const [showPopup, setShowPopup] = useState(false);
+  const popupRef = useRef(null);
+  const navigate = useNavigate();
+
+  const togglePopup = () => {
+    setShowPopup(!showPopup);
+  };
+
+  const handleClickOutside = (event) => {
+    if (popupRef.current && !popupRef.current.contains(event.target)) {
+      setShowPopup(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <header className={styles.header}>
       <img
@@ -12,18 +38,14 @@ function Header() {
         alt="SecureVault Logo"
         className={styles.logo}
       />
-      <div className={styles.searchContainer}>
-        <div className={styles.searchIconWrapper}>
-          <CiSearch className={styles.searchIcon} />
+      <FaUserCircle className={styles.profileImage} onClick={togglePopup} />
+      {showPopup && (
+        <div className={styles.popupCard} ref={popupRef}>
+          <button className={styles.popupButton} onClick={handleLogout}>
+            Logout
+          </button>
         </div>
-        <input
-          type="text"
-          placeholder="Search passwords."
-          className={styles.searchInput}
-          aria-label="Search passwords"
-        />
-      </div>
-      <FaUserCircle className={styles.profileImage} />
+      )}
     </header>
   );
 }

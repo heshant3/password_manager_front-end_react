@@ -10,6 +10,10 @@ const Profile = () => {
   const [profileName, setProfileName] = useState("John Doe");
   const [profileEmail, setProfileEmail] = useState("john.doe@example.com");
   const [devices, setDevices] = useState([]);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isEditingPassword, setIsEditingPassword] = useState(false);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -33,11 +37,11 @@ const Profile = () => {
           if (Array.isArray(data.activeDevices)) {
             setDevices(
               data.activeDevices.map((device) => ({
-                icon: <FaLaptop size={24} color="#666" />, // Assuming all devices use the same icon
+                icon: <FaLaptop size={24} color="#666" />,
                 name: device.deviceName,
                 location: device.ipAddress,
                 status: new Date(device.loginTimestamp).toLocaleString(),
-                id: device._id, // Ensure the _id is included
+                id: device._id,
               }))
             );
           } else {
@@ -103,6 +107,45 @@ const Profile = () => {
       .catch((error) => toast.error("Error signing out from device:", error));
   };
 
+  const handleChangePassword = () => {
+    if (newPassword !== confirmPassword) {
+      toast.error("New passwords do not match");
+      return;
+    }
+
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      const passwordData = {
+        currentPassword,
+        newPassword,
+      };
+
+      fetch(`http://localhost:5000/api/auth/user/${userId}/change-password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(passwordData),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            toast.success("Password changed successfully");
+            setCurrentPassword("");
+            setNewPassword("");
+            setConfirmPassword("");
+            setIsEditingPassword(false);
+          } else {
+            toast.error(data.message || "Error changing password");
+          }
+        })
+        .catch((error) => toast.error("Error changing password:", error));
+    }
+  };
+
+  const handleEditPassword = () => setIsEditingPassword(true);
+  const handleCancelEditPassword = () => setIsEditingPassword(false);
+
   return (
     <>
       <link
@@ -155,6 +198,67 @@ const Profile = () => {
           </div>
         </section>
 
+        <section className={styles.passwordSection}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Security</h2>
+            {isEditingPassword ? (
+              <div>
+                <button
+                  className={styles.saveButton}
+                  onClick={handleChangePassword}
+                >
+                  Save
+                </button>
+                <button
+                  className={styles.cancelButton}
+                  onClick={handleCancelEditPassword}
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                className={styles.editButton}
+                onClick={handleEditPassword}
+              >
+                Edit
+              </button>
+            )}
+          </div>
+          <div className={styles.passwordGrid}>
+            <div className={styles.passwordItem}>
+              <label className={styles.passwordLabel}>Password</label>
+              {isEditingPassword ? (
+                <>
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className={styles.passwordInput}
+                    placeholder="Current Password"
+                  />
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className={styles.passwordInput}
+                    placeholder="New Password"
+                  />
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className={styles.passwordInput}
+                    placeholder="Confirm New Password"
+                  />
+                </>
+              ) : (
+                <p className={styles.passwordValue}>**********</p>
+              )}
+            </div>
+          </div>
+        </section>
+
         <section className={styles.devicesSection}>
           <h2 className={styles.sectionTitle}>Active Devices</h2>
           <div className={styles.deviceList}>
@@ -186,6 +290,7 @@ const Profile = () => {
             ))}
           </div>
         </section>
+
         <Toaster position="bottom-right" visibleToasts={1} />
       </main>
     </>

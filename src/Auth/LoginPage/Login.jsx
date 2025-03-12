@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../../Api/Api";
 import styles from "./Login.module.css";
+import { Toaster, toast } from "sonner";
 
 const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
@@ -19,15 +20,15 @@ const LoginPage = () => {
         localStorage.setItem("userId", userId);
         localStorage.setItem("token", token);
         navigate("/");
-        console.log("userId", userId);
       }
     } catch (error) {
-      alert("Login failed : Please Enter Correct Credential");
+      toast.error("Login failed : Please Enter Correct Credential");
     }
   };
 
   return (
     <main className={styles.loginPage}>
+      <Toaster position="bottom-right" visibleToasts={1} />
       <div className={styles.contentWrapper}>
         <section className={styles.welcomeColumn}>
           <div className={styles.welcomeContainer}>
@@ -83,9 +84,9 @@ const LoginPage = () => {
                       <span className={styles.checkboxLabel}>Remember me</span>
                     </div>
                   </label>
-                  <button type="button" className={styles.forgotPassword}>
+                  <Link to="/forgetpassword" className={styles.forgotPassword}>
                     Forgot Password?
-                  </button>
+                  </Link>
                 </div>
                 <button type="submit" className={styles.loginButton}>
                   Login

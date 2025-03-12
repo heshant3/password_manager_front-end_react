@@ -206,3 +206,52 @@
   color: #666;
   font-size: 1.5em;
 }
+
+.passwordSection {
+  background-color: #fff;
+  border-radius: 0.5em;
+  margin-bottom: 1.25em;
+  padding: 1em 3em;
+}
+
+.passwordGrid {
+  gap: 1.25em;
+  display: grid;
+}
+
+.passwordItem {
+  flex-direction: column;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5em;
+  padding-left: 1em;
+}
+
+.passwordLabel {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.passwordInput {
+  border: 1px solid #ccc;
+  border-radius: 0.25em;
+  padding: 0.5em;
+  font-size: 0.875rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.passwordValue {
+  color: #333;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.changePasswordButton {
+  color: #4a77e5;
+  cursor: pointer;
+  font-size: 0.875rem;
+  background: none;
+  border: none;
+  margin-top: 1em;
+}

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Signup.module.css";
 import { signup } from "../../Api/Api";
+import { Toaster, toast } from "sonner";
 
 function SignupPage() {
   const [formData, setFormData] = useState({
@@ -32,18 +33,18 @@ function SignupPage() {
       !dateOfBirth ||
       !address
     ) {
-      alert("All fields are required!");
+      toast.error("All fields are required!");
       return;
     }
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
 
     try {
       await signup(formData);
-      alert("Signup successful!");
+      toast.success("Signup successful!");
       setFormData({
         fullName: "",
         email: "",
@@ -54,12 +55,13 @@ function SignupPage() {
       });
       navigate("/login");
     } catch (err) {
-      alert(`Signup failed! Error: ${err.message}`);
+      toast.error(`Signup failed! Error: ${err.message}`);
     }
   };
 
   return (
     <>
+      <Toaster position="bottom-right" visibleToasts={1} />
       <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet"

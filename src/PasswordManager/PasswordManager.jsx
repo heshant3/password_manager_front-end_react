@@ -116,14 +116,18 @@ function PasswordCard({
   );
 }
 
-function PasswordGrid({ passwordEntries, onSave, onDelete }) {
+function PasswordGrid({ passwordEntries, onSave, onDelete, searchText = "" }) {
+  const filteredEntries = passwordEntries.filter((entry) =>
+    entry.accountType?.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   return (
     <div className={styles.gridContainer}>
-      {passwordEntries.length === 0 ? (
+      {filteredEntries.length === 0 ? (
         <p className={styles.noDataText}>No data available</p>
       ) : (
         <div className={styles.grid}>
-          {passwordEntries.map((entry) => (
+          {filteredEntries.map((entry) => (
             <div key={entry._id} className={styles.column}>
               <PasswordCard {...entry} onSave={onSave} onDelete={onDelete} />
             </div>
@@ -134,11 +138,17 @@ function PasswordGrid({ passwordEntries, onSave, onDelete }) {
   );
 }
 
-function PasswordHeader({ onAddNew }) {
+function PasswordHeader({ onAddNew, searchText, setSearchText }) {
   return (
     <header className={styles.header}>
       <Toaster position="bottom-right" visibleToasts={1} />
-      <h1 className={styles.title}>My Passwords</h1>
+      <input
+        type="text"
+        placeholder="Search by Account Type"
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+        className={styles.searchInput}
+      />
       <button className={styles.addButton} onClick={onAddNew}>
         + Add New
       </button>
@@ -164,6 +174,8 @@ function Modal({ isOpen, onClose, onSave }) {
     setEmail("");
     setPassword("");
   };
+
+  const isSaveDisabled = !accountType || !email || !password;
 
   if (!isOpen) return null;
 
@@ -196,7 +208,13 @@ function Modal({ isOpen, onClose, onSave }) {
           <button onClick={handleClose} className={styles.cancelButton}>
             Cancel
           </button>
-          <button onClick={handleSave} className={styles.saveButton}>
+          <button
+            onClick={handleSave}
+            className={`${styles.saveButton} ${
+              isSaveDisabled ? styles.disabledButton : ""
+            }`}
+            disabled={isSaveDisabled}
+          >
             Save
           </button>
         </div>
@@ -208,6 +226,7 @@ function Modal({ isOpen, onClose, onSave }) {
 function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [passwordEntries, setPasswordEntries] = useState([]);
+  const [searchText, setSearchText] = useState("");
 
   const fetchData = async () => {
     const userId = localStorage.getItem("userId");
@@ -270,11 +289,16 @@ function Dashboard() {
   return (
     <section className={styles.passwordManager}>
       <div className={styles.container}>
-        <PasswordHeader onAddNew={handleAddNew} />
+        <PasswordHeader
+          onAddNew={handleAddNew}
+          searchText={searchText}
+          setSearchText={setSearchText}
+        />
         <PasswordGrid
           passwordEntries={passwordEntries}
           onSave={handleUpdate}
           onDelete={handleDelete}
+          searchText={searchText}
         />
       </div>
       <Modal

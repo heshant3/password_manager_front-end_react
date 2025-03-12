@@ -9,6 +9,7 @@ import Header from "../HeaderNav/Header";
 function Container8() {
   const [activeTab, setActiveTab] = React.useState("passwords");
   const [passwordEntries, setPasswordEntries] = React.useState([]);
+  const [searchText, setSearchText] = React.useState("");
 
   const handleUpdate = (_id, updatedEntry) => {
     const updatedEntries = passwordEntries.map((entry) =>
@@ -24,7 +25,7 @@ function Container8() {
 
   return (
     <div>
-      <Header />
+      <Header showSearch={activeTab === "passwords"} onSearch={setSearchText} />
       <div className={styles.dashboard}>
         <nav className={styles.container8}>
           <button
@@ -52,6 +53,7 @@ function Container8() {
               passwordEntries={passwordEntries}
               onSave={handleUpdate}
               onDelete={handleDelete}
+              searchText={searchText}
             />
           )}
           {activeTab === "profile" && <Profile />}
