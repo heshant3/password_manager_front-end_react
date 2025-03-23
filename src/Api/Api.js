@@ -9,3 +9,7 @@ export const signup = async (userData) => {
 export const login = async (userData) => {
   return axios.post(`${API_URL}/login`, userData);
 };
+
+export const verifyOtp = async (otpData) => {
+  return axios.post(`${API_URL}/verify-otp`, otpData);
+};

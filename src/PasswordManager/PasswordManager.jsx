@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { TbEdit, TbEditOff } from "react-icons/tb";
 import styles from "./PasswordManager.module.css";
-import { MdOutlineDelete } from "react-icons/md";
+import { MdOutlineDelete, MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { VscSaveAs } from "react-icons/vsc";
 import axios from "axios";
 import { Toaster, toast } from "sonner";
+import PasswordStrengthBar from "react-password-strength-bar";
 
 function PasswordCard({
   _id,
@@ -19,6 +20,7 @@ function PasswordCard({
   const [editedAccountType, setEditedAccountType] = useState(accountType);
   const [editedEmail, setEditedEmail] = useState(email);
   const [editedPassword, setEditedPassword] = useState(password);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSave = async () => {
     try {
@@ -51,6 +53,10 @@ function PasswordCard({
     }
   };
 
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <article className={styles.card}>
       <div className={styles.cardContent}>
@@ -72,11 +78,17 @@ function PasswordCard({
             />
             <h3 className={styles.CaptionInputText}>Password</h3>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={editedPassword}
               onChange={(e) => setEditedPassword(e.target.value)}
               className={styles.input}
             />
+            <button
+              onClick={toggleShowPassword}
+              className={styles.passwordToggleButton}
+            >
+              {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
+            </button>
           </>
         ) : (
           <>
@@ -85,7 +97,13 @@ function PasswordCard({
             <h3 className={styles.CaptionText}>Email</h3>
             <p className={styles.email}>{email}</p>
             <h3 className={styles.CaptionText}>Password</h3>
-            <p className={styles.password}>{password}</p>
+            <p className={styles.password}>
+              {showPassword ? password : "••••••••"}
+            </p>
+            <button
+              onClick={toggleShowPassword}
+              className={styles.passwordToggleButton}
+            ></button>
             <p className={styles.lastModified}>Last modified: {lastModified}</p>
           </>
         )}
@@ -111,6 +129,15 @@ function PasswordCard({
             <MdOutlineDelete size={17} className={styles.viewIcon} />
           )}
         </button>
+        {!isEditing && (
+          <button className={styles.actionButton} onClick={toggleShowPassword}>
+            {showPassword ? (
+              <MdVisibilityOff size={17} className={styles.viewIcon} />
+            ) : (
+              <MdVisibility size={17} className={styles.viewIcon} />
+            )}
+          </button>
+        )}
       </div>
     </article>
   );
@@ -156,10 +183,21 @@ function PasswordHeader({ onAddNew, searchText, setSearchText }) {
   );
 }
 
+function generateRandomPassword(length = 12) {
+  const charset =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=";
+  let password = "";
+  for (let i = 0, n = charset.length; i < length; ++i) {
+    password += charset.charAt(Math.floor(Math.random() * n));
+  }
+  return password;
+}
+
 function Modal({ isOpen, onClose, onSave }) {
   const [accountType, setAccountType] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleClose = () => {
     setAccountType("");
@@ -173,6 +211,15 @@ function Modal({ isOpen, onClose, onSave }) {
     setAccountType("");
     setEmail("");
     setPassword("");
+  };
+
+  const handleGeneratePassword = (length) => {
+    const randomPassword = generateRandomPassword(length);
+    setPassword(randomPassword);
+  };
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   const isSaveDisabled = !accountType || !email || !password;
@@ -197,13 +244,32 @@ function Modal({ isOpen, onClose, onSave }) {
           onChange={(e) => setEmail(e.target.value)}
           className={styles.NewInput}
         />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className={styles.NewInput}
+        <div className={styles.passwordInputContainer}>
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={styles.NewInput}
+          />
+          <button
+            onClick={toggleShowPassword}
+            className={styles.passwordToggleButton}
+          >
+            {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
+          </button>
+        </div>
+
+        <PasswordStrengthBar
+          password={password}
+          className={styles.PasswordStrengthBar}
         />
+        <button
+          onClick={() => handleGeneratePassword(20)}
+          className={styles.generateButton}
+        >
+          Generate Password
+        </button>
         <div className={styles.modalActions}>
           <button onClick={handleClose} className={styles.cancelButton}>
             Cancel
