@@ -21,6 +21,7 @@ function PasswordCard({
   const [editedEmail, setEditedEmail] = useState(email);
   const [editedPassword, setEditedPassword] = useState(password);
   const [showPassword, setShowPassword] = useState(false);
+  const [decryptedPassword, setDecryptedPassword] = useState("");
 
   const handleSave = async () => {
     try {
@@ -53,8 +54,21 @@ function PasswordCard({
     }
   };
 
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
+  const handleShowPassword = async () => {
+    if (!showPassword) {
+      try {
+        const response = await axios.post(
+          "http://localhost:5000/api/account/decrypt-password",
+          { encryptedPassword: password }
+        );
+        setDecryptedPassword(response.data.password);
+        setShowPassword(true);
+      } catch (error) {
+        toast.error("Failed to decrypt password");
+      }
+    } else {
+      setShowPassword(false);
+    }
   };
 
   return (
@@ -84,7 +98,7 @@ function PasswordCard({
               className={styles.input}
             />
             <button
-              onClick={toggleShowPassword}
+              onClick={handleShowPassword}
               className={styles.passwordToggleButton}
             >
               {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
@@ -98,12 +112,9 @@ function PasswordCard({
             <p className={styles.email}>{email}</p>
             <h3 className={styles.CaptionText}>Password</h3>
             <p className={styles.password}>
-              {showPassword ? password : "••••••••"}
+              {showPassword ? decryptedPassword : "••••••••"}
             </p>
-            <button
-              onClick={toggleShowPassword}
-              className={styles.passwordToggleButton}
-            ></button>
+
             <p className={styles.lastModified}>Last modified: {lastModified}</p>
           </>
         )}
@@ -130,7 +141,7 @@ function PasswordCard({
           )}
         </button>
         {!isEditing && (
-          <button className={styles.actionButton} onClick={toggleShowPassword}>
+          <button className={styles.actionButton} onClick={handleShowPassword}>
             {showPassword ? (
               <MdVisibilityOff size={17} className={styles.viewIcon} />
             ) : (
